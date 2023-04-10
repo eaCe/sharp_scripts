@@ -1,4 +1,3 @@
-# sharp
-Some sharp scrips
+some sharp scrips...
 
 https://github.com/lovell/sharp
