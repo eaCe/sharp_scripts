@@ -1,45 +1,107 @@
 const sharp = require('sharp');
 const fs = require('fs');
 const mime = require('mime-types');
-
-const inputDir = 'images/';
-const outputDir = inputDir + 'output/';
-const resizeOptions = {
-  maxWidth: 1920,
-  maxHeight: 1920
-};
+const inquirer = require('inquirer');
 const allowedMimeTypes = [
   'image/jpeg',
   'image/png',
   'image/gif'
 ];
 
-fs.readdir(inputDir, function (error, filenames) {
-  if (error) {
-    console.error(error);
-    return;
-  }
+inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'inputDir',
+      default: 'images',
+      message: 'Enter a input path',
+      validate: (value) => {
+        if (value !== '') {
+          if (!fs.existsSync(value)) {
+            return 'Enter a valid input path';
+          }
 
-  // create output dir
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
+          return true;
+        }
 
-  for (let i = 0; i < filenames.length; i++) {
-    const mimeType = mime.lookup(inputDir + filenames[i]);
+        return 'Enter a valid input path';
+      }
+    },
+    {
+      type: 'input',
+      name: 'outputDir',
+      default: 'output',
+      message: 'Enter a output directory name',
+      validate: (value) => {
+        if (value === '') {
+          return 'Enter a valid output directory name';
+        }
 
-    if (!allowedMimeTypes.includes(mimeType)) {
-      continue;
-    }
+        return true;
+      }
+    },
+    {
+      type: 'number',
+      name: 'maxWidth',
+      default: 1920,
+      message: 'Enter a maximum width',
+      validate: (value) => {
+        if (value !== '') {
+          if (isNaN(value)) {
+            return 'Enter a valid maximum width';
+          }
 
-    sharp(inputDir + filenames[i])
-      .resize(resizeOptions.maxWidth, resizeOptions.maxHeight, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .sharpen({ sigma: 0.5 })
-      .toFile(outputDir + filenames[i])
-      .then(info => { console.info(info); })
-      .catch(error => { console.error(error); });
-  }
-});
+          return true;
+        }
+      }
+    },
+    {
+      type: 'number',
+      name: 'maxHeight',
+      default: 1920,
+      message: 'Enter a maximum height',
+      validate: (value) => {
+        if (value !== '') {
+          if (isNaN(value)) {
+            return 'Enter a valid maximum height';
+          }
+
+          return true;
+        }
+      }
+    },
+  ])
+  .then(answers => {
+    const inputDir = answers.inputDir + '/';
+    const outputDir = inputDir + answers.outputDir + '/';
+
+    fs.readdir(inputDir, (error, filenames) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      // create output dir
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir);
+      }
+
+      for (let i = 0; i < filenames.length; i++) {
+        const mimeType = mime.lookup(inputDir + filenames[i]);
+
+        if (!allowedMimeTypes.includes(mimeType)) {
+          continue;
+        }
+
+        sharp(inputDir + filenames[i])
+          .resize(answers.maxWidth, answers.maxHeight, {
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .sharpen({ sigma: 0.5 })
+          .toFile(outputDir + filenames[i])
+          .then(info => { console.info(info); })
+          .catch(error => { console.error(error); });
+      }
+    });
+  });
