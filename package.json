@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "resize": "node resize.js"
+    "resize": "node resize.js",
+    "favicon": "node favicon.js"
   },
   "dependencies": {
     "inquirer": "^8.0.0",
