@@ -1,7 +1,8 @@
 {
   "scripts": {
     "resize": "node resize.js",
-    "favicon": "node favicon.js"
+    "favicon": "node favicon.js",
+    "webp": "node toWebp.js"
   },
   "dependencies": {
     "inquirer": "^8.0.0",
