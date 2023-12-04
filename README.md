@@ -15,7 +15,7 @@ Exports browserconfig.xml and a .txt file with the html code.
 Resizes png, jpg or gif files to a given width and height.
 
 
-### `svg.js`
+### `svgo.js`
 
 Optimizes svg files.
 
