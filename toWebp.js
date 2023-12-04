@@ -2,6 +2,10 @@ const sharp = require('sharp');
 const fs = require('fs');
 const mime = require('mime-types');
 const inquirer = require('inquirer');
+
+/**
+ * Allowed mime types
+ */
 const allowedMimeTypes = [
   'image/jpeg',
   'image/png',
@@ -51,11 +55,16 @@ inquirer
         return;
       }
 
-      // create output dir
+      /**
+       * Check if the output directory exists
+       */
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
       }
 
+      /**
+       * Loop through all the files in the input directory
+       */
       for (let i = 0; i < filenames.length; i++) {
         const mimeType = mime.lookup(inputDir + filenames[i]);
 
@@ -63,6 +72,9 @@ inquirer
           continue;
         }
 
+        /**
+         * Convert the image to webp
+         */
         sharp(inputDir + filenames[i])
           .webp()
           .toFile(outputDir + filenames[i].replace(/\.[^/.]+$/, '') + '.webp')

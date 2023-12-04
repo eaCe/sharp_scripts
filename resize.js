@@ -2,6 +2,10 @@ const sharp = require('sharp');
 const fs = require('fs');
 const mime = require('mime-types');
 const inquirer = require('inquirer');
+
+/**
+ * Allowed mime types
+ */
 const allowedMimeTypes = [
   'image/jpeg',
   'image/png',
@@ -17,6 +21,10 @@ inquirer
       message: 'Enter a input path',
       validate: (value) => {
         if (value !== '') {
+
+          /**
+           * Check if the input path exists
+           */
           if (!fs.existsSync(value)) {
             return 'Enter a valid input path';
           }
@@ -81,18 +89,29 @@ inquirer
         return;
       }
 
-      // create output dir
+      /**
+       * Check if the output directory exists
+       */
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
       }
 
+      /**
+       * Loop through the filenames array
+       */
       for (let i = 0; i < filenames.length; i++) {
         const mimeType = mime.lookup(inputDir + filenames[i]);
 
+        /**
+         * Check if the mime type is allowed
+         */
         if (!allowedMimeTypes.includes(mimeType)) {
           continue;
         }
 
+        /**
+         * Resize the image
+         */
         sharp(inputDir + filenames[i])
           .resize(answers.maxWidth, answers.maxHeight, {
             fit: 'inside',

@@ -2,11 +2,19 @@ const sharp = require('sharp');
 const fs = require('fs');
 const mime = require('mime-types');
 const inquirer = require('inquirer');
+
+/**
+ * Allowed mime types
+ */
 const allowedMimeTypes = [
     'image/jpeg',
     'image/png',
     'image/gif'
 ];
+
+/**
+ * Icons sizes
+ */
 const iconsSizes = [
     16,
     32,
@@ -35,6 +43,9 @@ inquirer
             message: 'Enter the image path',
             validate: async (imagePath) => {
                 if (imagePath !== '') {
+                    /**
+                     * Check if the image path exists
+                     */
                     if (!fs.existsSync(imagePath)) {
                         return 'Enter a valid image path';
                     }
@@ -42,12 +53,25 @@ inquirer
                     const metadata = await sharp(imagePath).metadata();
                     const mimeType = mime.lookup(imagePath);
 
+                    /**
+                     * Check if the mime type is allowed
+                     */
                     if (!allowedMimeTypes.includes(mimeType)) {
-                        return `Mime type "${mimeType}" not supported`;
+                        return `Mime type "${mimeType}" not supported. Allowed mime types are: ${allowedMimeTypes.join(', ')}`;
                     }
 
+                    /**
+                     * Check if the image has a minimum height and width of 310px
+                     */
                     if (metadata.width < 310 || metadata.height < 310) {
                         return 'The image should have a minimum height and width of 310px '
+                    }
+
+                    /**
+                     * Check if the image is a square
+                     */
+                    if (metadata.width !== metadata.height) {
+                        return 'The image should be a square';
                     }
 
                     return true;
@@ -62,6 +86,9 @@ inquirer
             default: 'favicon',
             message: 'Enter a output directory name',
             validate: (value) => {
+                /**
+                 * Check if the output directory name is not empty
+                 */
                 if (value === '') {
                     return 'Enter a valid output directory name';
                 }
@@ -74,7 +101,10 @@ inquirer
         const imagePath = answers.input;
         const outputDir = answers.outputDir + '/';
 
-        // create output dir
+        /**
+         * Check if the output directory exists
+         * If not, create it
+         */
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir);
         }
@@ -91,8 +121,10 @@ inquirer
                 .catch(error => { console.error(error); });
         })
 
-        // TODO: create .ico file
-
+        /**
+         * Create a .txt file with the HTML code
+         * TODO: create .ico file, see https://github.com/lovell/sharp/issues/1118#issuecomment-1205599759
+         */
         const faviconHTML = '' +
         '<link rel="apple-touch-icon" sizes="57x57" href="/favicon-57x57.png">\n' +
         '<link rel="apple-touch-icon" sizes="60x60" href="/favicon-60x60.png">\n' +
@@ -115,6 +147,9 @@ inquirer
 
         fs.writeFileSync(outputDir + 'favicon.txt', faviconHTML);
 
+        /**
+         * Create a browserconfig.xml file
+         */
         const browserConfig = '<?xml version="1.0" encoding="utf-8"?>\n' +
             '<browserconfig>\n' +
             '\t<msapplication>\n' +
